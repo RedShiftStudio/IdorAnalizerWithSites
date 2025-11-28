@@ -9,9 +9,21 @@ namespace IdorAnalizerCSharp
     {
         static async Task Main(string[] args)
         {
-            Parser.Default.ParseArguments<ScanOptions>(args)
-                .WithParsed(options => RunScanAsync(options))
-                .WithNotParsed(errors => HandleParseErrors(errors));
+            try
+            {
+                // ваш текущий код парсинга и вызова RunScanAsync
+                var parser = new Parser(settings => settings.HelpWriter = null);
+                var result = parser.ParseArguments<ScanOptions>(args);
+                await result.MapResult(
+                    async options => await RunScanAsync(options),
+                    errors => Task.CompletedTask
+                );
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.WriteException(ex);
+                Console.WriteLine($"КРИТИЧЕСКАЯ ОШИБКА: {ex}");
+            }
         }
 
         static async Task RunScanAsync(ScanOptions options)

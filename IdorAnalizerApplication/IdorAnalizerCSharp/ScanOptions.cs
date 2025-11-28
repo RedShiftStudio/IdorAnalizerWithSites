@@ -2,22 +2,21 @@
 
 namespace IdorAnalizerCSharp
 {
-    [Verb("scan", HelpText = "Scan a website for IDOR vulnerabilities")]
-    internal class ScanOptions
+    public class ScanOptions
     {
         [Value(0, MetaName = "url", HelpText = "Target URL to scan", Required = true)]
         public string Url { get; set; }
 
-        [Option('H', "headers", HelpText = "HTTP headers (format: \"Header1:Value1,Header2:Value2\")")]
+        [Option('H', "headers", HelpText = "HTTP headers")]
         public string Headers { get; set; }
 
-        [Option('c', "cookies", HelpText = "Session cookies (format: \"cookie1=value1; cookie2=value2\")")]
+        [Option('c', "cookies", HelpText = "Session cookies")]
         public string Cookies { get; set; }
 
         [Option('t', "threads", Default = 5, HelpText = "Number of concurrent threads")]
         public int Threads { get; set; }
 
-        [Option('s', "sensitivity", Default = 0.8, HelpText = "Sensitivity level (0.0-1.0)")]
+        [Option('s', "sensitivity", Default = 0.8, HelpText = "Sensitivity level")]
         public double Sensitivity { get; set; }
 
         [Option('T', "timeout", Default = 10, HelpText = "Request timeout in seconds")]
@@ -29,7 +28,7 @@ namespace IdorAnalizerCSharp
         [Option('o', "output", HelpText = "Output report file")]
         public string Output { get; set; }
 
-        [Option('f', "format", Default = "json", HelpText = "Report format (json, csv, pdf)")]
+        [Option('f', "format", Default = "json", HelpText = "Report format")]
         public string Format { get; set; }
 
         [Option('v', "verbose", HelpText = "Enable verbose output")]
