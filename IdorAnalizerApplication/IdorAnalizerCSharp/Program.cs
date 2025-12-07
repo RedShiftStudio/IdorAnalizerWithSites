@@ -30,15 +30,15 @@ namespace IdorAnalizerCSharp
         {
             // Вывод баннера
             AnsiConsole.WriteLine(new string('=', 60));
-            AnsiConsole.MarkupLine("[cyan]ADVANCED IDOR Scanner v2.0[/]");
-            AnsiConsole.MarkupLine("[cyan]With integrated techniques from Habr article: https://habr.com/ru/articles/848116/[/]");
-            AnsiConsole.MarkupLine("[cyan]Supporting: parameter pollution, JSON globbing, HTTP method variations, content-type testing, API version testing[/]");
+            AnsiConsole.WriteLine("[cyan]ADVANCED IDOR Scanner v2.0[/]");
+            AnsiConsole.WriteLine("[cyan]With integrated techniques from Habr article: https://habr.com/ru/articles/848116/[/]");
+            AnsiConsole.WriteLine("[cyan]Supporting: parameter pollution, JSON globbing, HTTP method variations, content-type testing, API version testing[/]");
             AnsiConsole.WriteLine(new string('=', 60));
-            AnsiConsole.MarkupLine($"[white]Target URL: [bold]{options.Url}[/][/]");
-            AnsiConsole.MarkupLine($"[white]Threads: {options.Threads}[/]");
-            AnsiConsole.MarkupLine($"[white]Sensitivity: {options.Sensitivity:F2}[/]");
-            AnsiConsole.MarkupLine($"[white]Max Pages: {options.MaxPages}[/]");
-            AnsiConsole.MarkupLine($"[yellow]Advanced mode: {(options.Advanced ? "ENABLED" : "DISABLED")}[/]");
+            AnsiConsole.WriteLine($"[white]Target URL: [bold]{options.Url}[/][/]");
+            AnsiConsole.WriteLine($"[white]Threads: {options.Threads}[/]");
+            AnsiConsole.WriteLine($"[white]Sensitivity: {options.Sensitivity:F2}[/]");
+            AnsiConsole.WriteLine($"[white]Max Pages: {options.MaxPages}[/]");
+            AnsiConsole.WriteLine($"[yellow]Advanced mode: {(options.Advanced ? "ENABLED" : "DISABLED")}[/]");
             AnsiConsole.WriteLine(new string('=', 60));
             AnsiConsole.WriteLine();
 
@@ -119,7 +119,7 @@ namespace IdorAnalizerCSharp
                     }
                     catch (Exception ex)
                     {
-                        AnsiConsole.MarkupLine($"[yellow]Warning: Could not add cookie {cookie.Name}: {ex.Message}[/]");
+                        AnsiConsole.WriteLine($"[yellow]Warning: Could not add cookie {cookie.Name}: {ex.Message}[/]");
                     }
                 }
 
@@ -135,16 +135,16 @@ namespace IdorAnalizerCSharp
 
             try
             {
-                AnsiConsole.MarkupLine("[cyan][*] Starting advanced scan...[/]");
+                AnsiConsole.WriteLine("[cyan][*] Starting advanced scan...[/]");
                 var results = await scanner.ScanAsync(options.Url, options.MaxPages);
                 stopwatch.Stop();
 
                 AnsiConsole.WriteLine();
                 AnsiConsole.WriteLine(new string('=', 60));
-                AnsiConsole.MarkupLine("[cyan]SCAN COMPLETED[/]");
+                AnsiConsole.WriteLine("[cyan]SCAN COMPLETED[/]");
                 AnsiConsole.WriteLine(new string('=', 60));
-                AnsiConsole.MarkupLine($"[white]Scan duration: {stopwatch.Elapsed.TotalSeconds:F2} seconds[/]");
-                AnsiConsole.MarkupLine($"[white]Vulnerabilities found: {results.Count}[/]");
+                AnsiConsole.WriteLine($"[white]Scan duration: {stopwatch.Elapsed.TotalSeconds:F2} seconds[/]");
+                AnsiConsole.WriteLine($"[white]Vulnerabilities found: {results.Count}[/]");
                 AnsiConsole.WriteLine(new string('=', 60));
                 AnsiConsole.WriteLine();
 
@@ -176,7 +176,7 @@ namespace IdorAnalizerCSharp
                 }
                 else
                 {
-                    AnsiConsole.MarkupLine("[green][+] No IDOR vulnerabilities found.[/]");
+                    AnsiConsole.WriteLine("[green][+] No IDOR vulnerabilities found.[/]");
                 }
 
                 // Генерация отчета
@@ -197,7 +197,7 @@ namespace IdorAnalizerCSharp
                             scanner.GeneratePdfReport(outputPath);
                             break;
                         default:
-                            AnsiConsole.MarkupLine($"[yellow]Unsupported format: {format}. Using JSON.[/]");
+                            AnsiConsole.WriteLine($"[yellow]Unsupported format: {format}. Using JSON.[/]");
                             scanner.GenerateJsonReport(outputPath);
                             break;
                     }
@@ -208,28 +208,28 @@ namespace IdorAnalizerCSharp
                 {
                     AnsiConsole.WriteLine();
                     AnsiConsole.WriteLine(new string('=', 60));
-                    AnsiConsole.MarkupLine("[cyan]REMEDIATION RECOMMENDATIONS[/]");
+                    AnsiConsole.WriteLine("[cyan]REMEDIATION RECOMMENDATIONS[/]");
                     AnsiConsole.WriteLine(new string('=', 60));
-                    AnsiConsole.MarkupLine("[yellow]1. Implement proper access control checks for all sensitive resources[/]");
-                    AnsiConsole.MarkupLine("[yellow]2. Use indirect reference maps instead of direct object references[/]");
-                    AnsiConsole.MarkupLine("[yellow]3. Implement role-based access control (RBAC) for all user operations[/]");
-                    AnsiConsole.MarkupLine("[yellow]4. Validate all user input and implement proper authorization checks[/]");
-                    AnsiConsole.MarkupLine("[yellow]5. Use UUIDs instead of sequential IDs for sensitive resources[/]");
-                    AnsiConsole.MarkupLine("[yellow]6. Implement logging and monitoring for unauthorized access attempts[/]");
-                    AnsiConsole.MarkupLine("[yellow]7. Test all HTTP methods and content types for access control bypass[/]");
-                    AnsiConsole.MarkupLine("[yellow]8. Regularly audit API versions and disable old, insecure versions[/]");
-                    AnsiConsole.MarkupLine("[yellow]9. Implement proper validation for JSON data structures[/]");
-                    AnsiConsole.MarkupLine("[yellow]10. Use parameter binding and strict type checking to prevent parameter pollution[/]");
+                    AnsiConsole.WriteLine("[yellow]1. Implement proper access control checks for all sensitive resources[/]");
+                    AnsiConsole.WriteLine("[yellow]2. Use indirect reference maps instead of direct object references[/]");
+                    AnsiConsole.WriteLine("[yellow]3. Implement role-based access control (RBAC) for all user operations[/]");
+                    AnsiConsole.WriteLine("[yellow]4. Validate all user input and implement proper authorization checks[/]");
+                    AnsiConsole.WriteLine("[yellow]5. Use UUIDs instead of sequential IDs for sensitive resources[/]");
+                    AnsiConsole.WriteLine("[yellow]6. Implement logging and monitoring for unauthorized access attempts[/]");
+                    AnsiConsole.WriteLine("[yellow]7. Test all HTTP methods and content types for access control bypass[/]");
+                    AnsiConsole.WriteLine("[yellow]8. Regularly audit API versions and disable old, insecure versions[/]");
+                    AnsiConsole.WriteLine("[yellow]9. Implement proper validation for JSON data structures[/]");
+                    AnsiConsole.WriteLine("[yellow]10. Use parameter binding and strict type checking to prevent parameter pollution[/]");
                     AnsiConsole.WriteLine(new string('=', 60));
                 }
             }
             catch (OperationCanceledException)
             {
-                AnsiConsole.MarkupLine("[red][-] Scan interrupted by user[/]");
+                AnsiConsole.WriteLine("[red][-] Scan interrupted by user[/]");
             }
             catch (Exception ex)
             {
-                AnsiConsole.MarkupLine($"[red][-] Critical error during scan: {ex.Message}[/]");
+                AnsiConsole.WriteLine($"[red][-] Critical error during scan: {ex.Message}[/]");
                 if (options.Verbose)
                 {
                     AnsiConsole.WriteException(ex);
@@ -239,10 +239,10 @@ namespace IdorAnalizerCSharp
 
         static void HandleParseErrors(IEnumerable<Error> errors)
         {
-            AnsiConsole.MarkupLine("[red]Error parsing command line arguments[/]");
+            AnsiConsole.WriteLine("[red]Error parsing command line arguments[/]");
             foreach (var error in errors)
             {
-                AnsiConsole.MarkupLine($"[red]- {error}[/]");
+                AnsiConsole.WriteLine($"[red]- {error}[/]");
             }
         }
     }

@@ -949,12 +949,12 @@ namespace IdorAnalizerCSharp
 
         public async Task<List<ScanResult>> ScanAsync(string baseUrl, int maxPages = 20)
         {
-            AnsiConsole.MarkupLine($"[cyan]Starting advanced IDOR scan for: [bold]{baseUrl}[/][/]");
-            AnsiConsole.MarkupLine($"[yellow]Using advanced techniques from Habr article: parameter pollution, JSON globbing, HTTP method variations, content-type testing, API version testing[/]");
+            AnsiConsole.WriteLine($"[cyan]Starting advanced IDOR scan for: [bold]{baseUrl}[/][/]");
+            AnsiConsole.WriteLine($"[yellow]Using advanced techniques from Habr article: parameter pollution, JSON globbing, HTTP method variations, content-type testing, API version testing[/]");
 
             // Сбор URL с параметрами и API эндпоинтов
             var urlsToScan = await CrawlWebsiteAsync(baseUrl, maxPages);
-            AnsiConsole.MarkupLine($"[yellow]Found {urlsToScan.Count} URLs with parameters or API endpoints to scan[/]");
+            AnsiConsole.WriteLine($"[yellow]Found {urlsToScan.Count} URLs with parameters or API endpoints to scan[/]");
 
             var semaphore = new SemaphoreSlim(_maxConcurrency);
             var tasks = new List<Task<List<ScanResult>>>();
@@ -1001,7 +1001,7 @@ namespace IdorAnalizerCSharp
             }
             catch (Exception ex)
             {
-                AnsiConsole.MarkupLine($"[red]Error during scan: {ex.Message}[/]");
+                AnsiConsole.WriteLine($"[red]Error during scan: {ex.Message}[/]");
             }
 
             return _results.ToList();
@@ -1018,7 +1018,7 @@ namespace IdorAnalizerCSharp
             };
 
             File.WriteAllText(outputPath, JsonConvert.SerializeObject(report, Formatting.Indented));
-            AnsiConsole.MarkupLine($"[green]JSON report saved to: [bold]{outputPath}[/][/]");
+            AnsiConsole.WriteLine($"[green]JSON report saved to: [bold]{outputPath}[/][/]");
         }
 
         public void GenerateCsvReport(string outputPath)
@@ -1036,7 +1036,7 @@ namespace IdorAnalizerCSharp
             }
 
             File.WriteAllLines(outputPath, csvLines);
-            AnsiConsole.MarkupLine($"[green]CSV report saved to: [bold]{outputPath}[/][/]");
+            AnsiConsole.WriteLine($"[green]CSV report saved to: [bold]{outputPath}[/][/]");
         }
 
         public void GeneratePdfReport(string outputPath)
@@ -1129,7 +1129,7 @@ namespace IdorAnalizerCSharp
             pdfDoc.Add(new iTextSharp.text.Paragraph("10. Use parameter binding and strict type checking to prevent parameter pollution", normalFont));
 
             pdfDoc.Close();
-            AnsiConsole.MarkupLine($"[green]PDF report saved to: [bold]{outputPath}[/][/]");
+            AnsiConsole.WriteLine($"[green]PDF report saved to: [bold]{outputPath}[/][/]");
         }
     }
 

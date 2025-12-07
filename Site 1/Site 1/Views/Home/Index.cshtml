@@ -8,3 +8,17 @@ else
 {
     <p><a href="/auth/login">Войдите</a>, чтобы получить доступ к функционалу.</p>
 }
+<!-- Скрытые уязвимые ссылки для сканера -->
+<div style="display:none;">
+    <!-- Базовый IDOR -->
+    <a href="/documents/view?id=1">IDOR Test 1</a>
+    <a href="/documents/view?id=2">IDOR Test 2</a>
+
+    <!-- API-эндпоинты -->
+    <a href="/api/v1/profiles/1">API v1 Profile 1</a>
+    <a href="/api/v2/profiles/1">API v2 Profile 1</a>
+
+    <!-- Для вторичного IDOR -->
+    <a href="/messages/drafts?userId=1">Drafts User 1</a>
+    <a href="/messages/drafts?userId=2">Drafts User 2</a>
+</div>

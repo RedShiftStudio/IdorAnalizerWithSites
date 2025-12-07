@@ -17,11 +17,30 @@
 </div>
 
 <div class="card">
-    <h3>Уязвимые эндпоинты:</h3>
-    <ul>
-        <li><code>POST /messages/draft</code> — указать <code>TargetUserId</code></li>
-        <li><code>GET /schedules/export/result/2</code> — получить экспорт другого пользователя</li>
-        <li><code>POST /schedules/batch</code> — JSON globbing для расписаний</li>
-        <li><code>GET /shared-links/search?targetId=1</code> — найти общие ссылки</li>
-    </ul>
+    @* <h3>⚠️ Скрытые уязвимые эндпоинты (для сканера)</h3> *@
+    <div style="display:none;">
+        <!-- Черновики (вторичный IDOR) -->
+        <a href="/messages/drafts?userId=1">Drafts User 1</a>
+        <a href="/messages/drafts?userId=2">Drafts User 2</a>
+
+        <!-- Планировщик экспорта -->
+        <a href="/schedules/export/result/1">Export Result 1</a>
+        <a href="/schedules/export/result/2">Export Result 2</a>
+
+        <!-- Общие ссылки -->
+        <a href="/shared-links/search?targetId=1">Shared Links Target 1</a>
+        <a href="/shared-links/search?targetId=2">Shared Links Target 2</a>
+
+        <!-- Batch-запросы для JSON globbing -->
+        <a href="/schedules/batch?userIds=1,2">Batch Schedules</a>
+        <a href="/messages/batch-drafts?userId=1,2">Batch Drafts</a>
+
+        <h3>Уязвимости для тестирования:</h3>
+        <ul>
+            <li><code>POST /messages/draft</code> с <code>TargetUserId=2</code> — вторичный IDOR</li>
+            <li><code>GET /schedules/export/result/2</code> — получение чужого экспорта</li>
+            <li><code>GET /shared-links/search?targetId=1</code> — поиск общих ссылок</li>
+            <li><code>POST /schedules/batch</code> с <code>{"userIds": [1,2]}</code> — JSON globbing</li>
+        </ul>
+    </div>
 </div>
