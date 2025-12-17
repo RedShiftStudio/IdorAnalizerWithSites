@@ -19,5 +19,6 @@
         public int OriginalContentLength { get; set; }
         public int ModifiedContentLength { get; set; }
         public DateTime ScanTime { get; set; } = DateTime.Now;
+        public string VulnerableDataSample { get; set; } = "";
     }
 }
