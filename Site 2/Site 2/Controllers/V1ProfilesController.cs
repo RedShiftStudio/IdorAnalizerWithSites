@@ -1,47 +1,64 @@
-﻿using Site_2.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Site_2;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Site_2.Controllers
 {
+    public class Profile
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Email { get; set; }
+
+        public string Role {  get; set; }
+    }
+
     [ApiController]
     [Route("api/v1/profiles")]
-    [Authorize]
     public class V1ProfilesController : ControllerBase
     {
-        private readonly ApiDbContext _context;
-
-        public V1ProfilesController(ApiDbContext context)
+        private static List<Profile> _profiles = new List<Profile>
         {
-            _context = context;
-        }
+            new Profile { Id = 1, Name = "User1", Email = "user1@example.com" },
+            new Profile { Id = 2, Name = "User2", Email = "user2@example.com" }
+        };
 
-        // Уязвимо: нет проверки доступа
+        // ❌ Уязвимый GET (без проверки доступа)
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetProfile(int id)
+        public IActionResult GetProfile(int id)
         {
-            var profile = await _context.Profiles.FindAsync(id);
-            if (profile == null) return NotFound();
+            var profile = _profiles.FirstOrDefault(p => p.Id == id);
             return Ok(profile);
         }
 
-        // Parameter pollution
-        [HttpGet("search")]
-        public async Task<IActionResult> SearchProfiles([FromQuery] string id)
+        // ❌ Уязвимый POST
+        [HttpPost("{id}")]
+        public IActionResult UpdateProfile(int id, [FromBody] Profile updatedProfile)
         {
-            var ids = id.Split(',').Select(int.Parse).ToList();
-            var profiles = await _context.Profiles.Where(p => ids.Contains(p.Id)).ToListAsync();
+            var profile = _profiles.FirstOrDefault(p => p.Id == id);
+            return Ok(profile);
+        }
+
+        // 9. Parameter Pollution
+        [HttpGet("search")]
+        public IActionResult Search([FromQuery] string q)
+        {
+            var profiles = _profiles.Where(p => p.Name.Contains(q) || p.Email.Contains(q));
             return Ok(profiles);
         }
 
-        // HTTP Method bypass
-        [HttpPost("current")]
-        public async Task<IActionResult> GetCurrentProfilePost()
+        // 10. Content-Type Manipulation
+        [HttpGet("content-type-test")]
+        public IActionResult ContentTypeTest()
         {
-            var profiles = await _context.Profiles.ToListAsync();
-            return Ok(profiles); // Возвращает ВСЕ профили!
+            return Ok(new { message = "Content-Type test successful" });
+        }
+
+        // 11. Static Keywords
+        [HttpGet("current")]
+        public IActionResult GetCurrent()
+        {
+            return Ok(_profiles[0]); // Всегда возвращаем первого пользователя
         }
     }
 }

@@ -1,23 +1,31 @@
-﻿@{
-    ViewData["Title"] = "Вход";
-}
-
-<div class="card">
-    <h2>Вход в систему</h2>
-    @if (!ViewData.ModelState.IsValid)
-    {
-        <div class="error">@Html.ValidationSummary()</div>
-    }
-
-    <form method="post" action="/auth/login">
-        <div><label>Имя пользователя:</label><br /><input type="text" name="Username" required /></div>
-        <div style="margin-top:10px;"><label>Пароль:</label><br /><input type="password" name="Password" required /></div>
+﻿<div class="card">
+    <h2>Вход</h2>
+    <form method="post" action="/api/auth/login">
+        <div><input type="text" name="Username" placeholder="Имя" required /></div>
+        <div style="margin-top:10px;"><input type="password" name="Password" placeholder="Пароль" required /></div>
         <div style="margin-top:15px;"><button type="submit">Войти</button></div>
     </form>
-
-    <h3>Тестовые учетные данные:</h3>
-    <ul>
-        <li><strong>apiuser1</strong> / <code>api1pass</code></li>
-        <li><strong>apiuser2</strong> / <code>api2pass</code></li>
-    </ul>
+    <p>Тестовые данные: <code>apiuser1 / api1pass</code> или <code>apiuser2 / api2pass</code></p>
 </div>
+
+<script>
+    document.querySelector('form').onsubmit = async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                Username: formData.get('Username'),
+                Password: formData.get('Password')
+            })
+        });
+        const result = await response.json();
+        if (result.token) {
+            document.cookie = `auth_token=${result.token}; path=/`;
+            location.reload();
+        } else {
+            alert('Ошибка входа');
+        }
+    };
+</script>

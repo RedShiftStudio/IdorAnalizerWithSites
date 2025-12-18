@@ -1,44 +1,74 @@
-﻿<div class="card">
-	<h2>Добро пожаловать на тестовый API-сайт с уязвимостями IDOR!</h2>
-	@if (User.Identity.IsAuthenticated)
-	{
-		<p>Вы вошли как <strong>@User.Identity.Name</strong>.</p>
-		<p>Перейдите в <a href="/profiles/list">Мои профили</a>, чтобы увидеть уязвимые эндпоинты.</p>
-	}
-	else
-	{
-		<p><a href="/auth/login">Войдите</a>, чтобы получить доступ к функционалу.</p>
-	}
-</div>
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>API Versioning Test Site</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background: #f5f5f5;
+        }
 
-<div class="card">
-    @* <h3>⚠️ Скрытые уязвимые эндпоинты (для сканера)</h3> *@
-    <!-- Эти ссылки не видны, но сканер их найдёт -->
+        .nav a {
+            margin-right: 15px;
+            text-decoration: none;
+            color: #0066cc;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>Добро пожаловать на тестовый API-сайт с уязвимостями IDOR!</h1>
+
+    @if (User.Identity.IsAuthenticated)
+    {
+        <p>Вы вошли как <strong>@User.Identity.Name</strong>.</p>
+        <p>Ваши данные:</p>
+        <ul>
+            <li><strong>Имя:</strong> API User @(User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value == "1" ? "1" : "2")</li>
+            <li><strong>Email:</strong> apiuser@(User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value)@example.com</li>
+            <li><strong>Пароль:</strong> <code>api@(User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value)pass</code></li>
+        </ul>
+    }
+    else
+    {
+        <p><a href="/auth/login">Войдите</a>, чтобы получить доступ к функционалу.</p>
+    }
+
+    <!-- Скрытые уязвимые ссылки для сканера -->
     <div style="display:none;">
         <!-- Базовые IDOR -->
         <a href="/api/v1/profiles/1">Profile 1 (v1)</a>
         <a href="/api/v1/profiles/2">Profile 2 (v1)</a>
-        <a href="/api/v2/profiles/1">Profile 1 (v2)</a>
-        <a href="/api/v2/profiles/2">Profile 2 (v2)</a>
 
-        <!-- Parameter pollution -->
+        <!-- Parameter Pollution -->
         <a href="/api/v1/profiles/search?id=1,2">Search profiles 1,2</a>
 
-        <!-- Files -->
-        <a href="/api/files/file1">File 1</a>
-        <a href="/api/files/file2">File 2</a>
+        <!-- Файлы -->
+        <a href="/api/v1/files/file1">File 1</a>
+        <a href="/api/v1/files/file2">File 2</a>
 
         <!-- Уязвимые пути для вторичных IDOR -->
         <a href="/api/v1/profiles/static/current">Current profile (v1)</a>
         <a href="/api/v1/profiles/static/me">My profile (v1)</a>
+    </div>
 
+    <div class="card">
         <h3>Уязвимые эндпоинты для тестирования:</h3>
         <ul>
             <li><code>GET /api/v1/profiles/2</code> — уязвимая версия (без проверки доступа)</li>
             <li><code>GET /api/v2/profiles/2</code> — частично защищённая версия</li>
             <li><code>GET /api/v1/profiles/search?id=1,2</code> — parameter pollution</li>
             <li><code>POST /api/v1/profiles/current</code> — HTTP-метод bypass</li>
-            <li><code>GET /api/files/file1</code> — Content-Type обход</li>
+            <li><code>GET /api/v1/files/file1</code> — Content-Type обход</li>
         </ul>
     </div>
-</div>
+</body>
+</html>

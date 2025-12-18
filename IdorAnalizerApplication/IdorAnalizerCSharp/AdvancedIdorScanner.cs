@@ -29,21 +29,18 @@ namespace IdorAnalizerCSharp
             "profile", "account", "record", "item", "product", "invoice", "transaction",
             "me", "current", "self"
         };
-
         private readonly List<string> _authIndicators = new List<string>
         {
             "welcome", "hello", "profile", "settings", "dashboard",
             "account", "email", "username", "logout", "sign out",
             "password", "token", "session", "auth", "credential"
         };
-
         private readonly List<string> _errorIndicators = new List<string>
         {
             "access denied", "permission denied", "not authorized",
             "forbidden", "restricted", "invalid request", "error",
             "unauthorized", "not found", "does not exist", "permission error"
         };
-
         private readonly List<string> _personalDataPatterns = new List<string>
         {
             @"\b[\w\.-]+@[\w\.-]+\.\w+\b",  // email
@@ -52,7 +49,6 @@ namespace IdorAnalizerCSharp
             @"\b\d{2}[- /.]\d{2}[- /.]\d{4}\b",  // date
             @"\b\d{9}\b"  // social security number
         };
-
         private readonly ConcurrentDictionary<string, bool> _testedUrls = new ConcurrentDictionary<string, bool>();
         private readonly ConcurrentBag<ScanResult> _results = new ConcurrentBag<ScanResult>();
         private readonly int _maxConcurrency;
@@ -156,7 +152,6 @@ namespace IdorAnalizerCSharp
             // Анализ длины ответа
             double lengthRatio = modifiedResponse.Length > 0 ?
                 (double)originalResponse.Length / modifiedResponse.Length : 0;
-
             if (lengthRatio > 0.8 && lengthRatio < 1.2)
             {
                 confidence += 0.2;
@@ -193,14 +188,12 @@ namespace IdorAnalizerCSharp
                 {
                     var originalJson = JObject.Parse(originalResponse);
                     var modifiedJson = JObject.Parse(modifiedResponse);
-
                     // Сравнение количества полей
                     if (Math.Abs(originalJson.Count - modifiedJson.Count) <= 2)
                     {
                         confidence += 0.1;
                         details += $"✅ Структура JSON схожа; ";
                     }
-
                     // Проверка на наличие данных в обоих ответах
                     if (modifiedJson.HasValues && originalJson.HasValues)
                     {
@@ -228,7 +221,6 @@ namespace IdorAnalizerCSharp
             {
                 details += $"🔍 Пример данных: {dataSample.Substring(0, Math.Min(50, dataSample.Length))}...";
             }
-
             details = $"Уровень уверенности: {confidence:F2}, Детали: {details.TrimEnd(';')} Тип теста: {testType}";
 
             // Ограничение confidence в диапазоне [0, 1]
@@ -243,8 +235,7 @@ namespace IdorAnalizerCSharp
             {
                 // Попытка распарсить JSON
                 var json = JObject.Parse(responseContent);
-                // ИСПРАВЛЕНИЕ: Используем JsonConvert.SerializeObject вместо json.ToString
-                return $"JSON: {JsonConvert.SerializeObject(json, Formatting.None, new JsonSerializerSettings { MaxDepth = 2, ReferenceLoopHandling = ReferenceLoopHandling.Ignore })}";
+                //return $"JSON: {json.ToString(Formatting.None, new JsonSerializerSettings { MaxDepth = 2, ReferenceLoopHandling = ReferenceLoopHandling.Ignore })}";
             }
             catch
             {
@@ -252,7 +243,6 @@ namespace IdorAnalizerCSharp
                 var emailMatch = Regex.Match(responseContent, @"\b[\w\.-]+@[\w\.-]+\.\w+\b");
                 if (emailMatch.Success)
                     return $"Email: {emailMatch.Value}";
-
                 var phoneMatch = Regex.Match(responseContent, @"\b\d{3}[-.]?\d{3}[-.]?\d{4}\b");
                 if (phoneMatch.Success)
                     return $"Phone: {phoneMatch.Value}";
@@ -280,7 +270,6 @@ namespace IdorAnalizerCSharp
                     ("0", "basic_numeric"),
                     ("999999", "basic_numeric")
                 });
-
                 if (isSensitiveEndpoint)
                 {
                     testValues.AddRange(new List<(string, string)>
@@ -298,7 +287,6 @@ namespace IdorAnalizerCSharp
                 bool isUuid = Guid.TryParse(originalValue, out _) ||
                               Regex.IsMatch(originalValue, @"^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$") ||
                               Regex.IsMatch(originalValue, @"^[a-fA-F0-9]{32}$");
-
                 if (isUuid)
                 {
                     // Для UUID пробуем другие известные ID
@@ -314,16 +302,10 @@ namespace IdorAnalizerCSharp
                         (originalValue.ToLower(), "case_change"),
                         (originalValue.ToUpper(), "case_change")
                     });
-
                     if (isSensitiveEndpoint)
                     {
-                        testValues.AddRange(new List<(string, string)>
-                        {
-                            ("1", "basic_numeric"),
-                            ("2", "basic_numeric"),
-                            ("0", "basic_numeric"),
-                            ("999999", "basic_numeric")
-                        });
+                        testValues.Add(new ValueTuple<string, string>("*", "wildcard"));
+                        testValues.Add(new ValueTuple<string, string>("%", "wildcard"));
                     }
                 }
             }
@@ -338,6 +320,8 @@ namespace IdorAnalizerCSharp
 
         private async Task<List<ScanResult>> TestUrlForAdvancedIdorAsync(string url)
         {
+            AnsiConsole.WriteLine($"[DEBUG] Testing URL: {url}");
+
             if (_testedUrls.ContainsKey(url))
             {
                 return new List<ScanResult>();
@@ -397,7 +381,6 @@ namespace IdorAnalizerCSharp
                         // Создание модифицированного URL
                         var modifiedParams = new NameValueCollection(queryParams);
                         modifiedParams[paramName] = testValue;
-
                         string modifiedQuery = modifiedParams.ToString();
                         string modifiedUrl = $"{uri.GetLeftPart(UriPartial.Path)}?{modifiedQuery}";
 
@@ -428,7 +411,6 @@ namespace IdorAnalizerCSharp
                                 string riskLevel = confidence > 0.9 ? "CRITICAL" :
                                                   confidence > 0.8 ? "HIGH" :
                                                   confidence > 0.6 ? "MEDIUM" : "LOW";
-
                                 results.Add(new ScanResult
                                 {
                                     Url = url,
@@ -463,9 +445,7 @@ namespace IdorAnalizerCSharp
                         var methodResults = await TestHttpMethodVariationsAsync(url, queryParams, paramName, originalValue);
                         results.AddRange(methodResults);
                     }
-
                     bool isApiEndpoint = url.ToLower().Contains("api");
-
                     // 3. Тестирование различных Content-Type для чувствительных эндпоинтов
                     if (isSensitiveEndpoint && isApiEndpoint)
                     {
@@ -479,6 +459,15 @@ namespace IdorAnalizerCSharp
                 AnsiConsole.WriteLine($"[red]Error analyzing {url}: {ex.Message}[/]");
             }
 
+            if (results.Count == 0)
+            {
+                AnsiConsole.WriteLine($"[DEBUG] No vulnerabilities found for: {url}");
+            }
+            else
+            {
+                AnsiConsole.WriteLine($"[DEBUG] Found {results.Count} vulnerabilities for: {url}");
+            }
+
             return results;
         }
 
@@ -486,7 +475,6 @@ namespace IdorAnalizerCSharp
         {
             var results = new List<ScanResult>();
             var testPaths = new List<string> { "1", "2", "admin", "me", "current" };
-
             var uri = new Uri(url);
             string basePath = uri.GetLeftPart(UriPartial.Path);
 
@@ -577,7 +565,7 @@ namespace IdorAnalizerCSharp
                 }
 
                 // Поиск ID в URL
-                var urlMatches = Regex.Matches(responseContent, @"https?://[^\s\""]+/api/[^\s\""]*[/=](\d+|[\w\-]{8,})", RegexOptions.IgnoreCase);
+                var urlMatches = Regex.Matches(responseContent, @"https?://[^\s""]+/api/[^\s""]*[/=](\d+|[\w\-]{8,})", RegexOptions.IgnoreCase);
                 foreach (Match match in urlMatches)
                 {
                     if (match.Groups.Count > 1)
@@ -599,41 +587,37 @@ namespace IdorAnalizerCSharp
         private async Task<List<ScanResult>> TestHttpMethodVariationsAsync(string url, NameValueCollection queryParams, string paramName, string originalValue)
         {
             var results = new List<ScanResult>();
-            var methodsToTest = new[] { HttpMethod.Post, HttpMethod.Put };
+            var methodsToTest = new[] { HttpMethod.Post };
 
             foreach (var method in methodsToTest)
             {
                 try
                 {
-                    // Создание модифицированного URL
-                    var modifiedParams = new NameValueCollection(queryParams);
-                    modifiedParams[paramName] = "1";
-
-                    string modifiedQuery = modifiedParams.ToString();
-                    string modifiedUrl = $"{new Uri(url).GetLeftPart(UriPartial.Path)}?{modifiedQuery}";
+                    // Создаем URL без параметров для POST
+                    var uri = new Uri(url);
+                    string modifiedUrl = $"{uri.GetLeftPart(UriPartial.Path)}";
 
                     if (_testedUrls.ContainsKey(modifiedUrl + method.Method))
                         continue;
 
                     _testedUrls[modifiedUrl + method.Method] = true;
 
-                    // Создание запроса с разными методами
+                    // Создаем JSON тело с тестовым значением
+                    var jsonBody = $"{{\"{paramName}\": 2}}"; // Тестируем ID=2
                     var request = new HttpRequestMessage(method, modifiedUrl);
+                    request.Content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
 
-                    // Для POST/PUT добавляем тело запроса
-                    if (method == HttpMethod.Post || method == HttpMethod.Put)
+                    // Добавляем куки из оригинального запроса
+                    if (!string.IsNullOrEmpty(_httpClient.DefaultRequestHeaders.GetValues("Cookie").FirstOrDefault()))
                     {
-                        var body = new Dictionary<string, string>
-                        {
-                            { paramName, "1" }
-                        };
-                        request.Content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json");
+                        request.Headers.Add("Cookie", _httpClient.DefaultRequestHeaders.GetValues("Cookie").First());
                     }
+
+                    AnsiConsole.WriteLine($"[DEBUG] Testing POST: {modifiedUrl} with body: {jsonBody}");
 
                     var response = await _httpClient.SendAsync(request);
                     var content = await response.Content.ReadAsStringAsync();
 
-                    // Анализ результатов только если статус 200
                     if ((int)response.StatusCode == 200)
                     {
                         var originalResponse = await _httpClient.GetAsync(url);
@@ -644,6 +628,8 @@ namespace IdorAnalizerCSharp
                             originalResponse.StatusCode, response.StatusCode,
                             $"http_method_{method.Method.ToLower()}"
                         );
+
+                        AnsiConsole.WriteLine($"[DEBUG] POST result: {isVulnerable}, confidence: {confidence}");
 
                         if (isVulnerable && confidence > 0.5)
                         {
@@ -657,7 +643,7 @@ namespace IdorAnalizerCSharp
                                 ModifiedUrl = modifiedUrl,
                                 Parameter = paramName,
                                 OriginalValue = originalValue,
-                                TestValue = "1",
+                                TestValue = "2",
                                 TestType = $"http_method_{method.Method.ToLower()}",
                                 HttpMethod = method.Method,
                                 IsVulnerable = isVulnerable,
@@ -694,7 +680,6 @@ namespace IdorAnalizerCSharp
                 {
                     var modifiedParams = new NameValueCollection(queryParams);
                     modifiedParams[paramName] = "1";
-
                     string modifiedQuery = modifiedParams.ToString();
                     string modifiedUrl = $"{new Uri(url).GetLeftPart(UriPartial.Path)}?{modifiedQuery}";
 
@@ -704,7 +689,19 @@ namespace IdorAnalizerCSharp
                     _testedUrls[modifiedUrl + contentType] = true;
 
                     var request = new HttpRequestMessage(HttpMethod.Post, modifiedUrl);
-                    request.Content = new StringContent($"{{{paramName}}}:1", Encoding.UTF8, contentType);
+
+                    // Тело запроса
+                    string requestBody = "";
+                    if (contentType == "application/json")
+                    {
+                        requestBody = $"{{\"{paramName}\": \"1\"}}";
+                    }
+                    else if (contentType == "application/xml")
+                    {
+                        requestBody = $"<request><{paramName}>1</{paramName}></request>";
+                    }
+
+                    request.Content = new StringContent(requestBody, Encoding.UTF8, contentType);
                     request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
                     var response = await _httpClient.SendAsync(request);
@@ -832,8 +829,7 @@ namespace IdorAnalizerCSharp
                     }
 
                     // Также ищем API эндпоинты
-                    var apiMatches = Regex.Matches(content, @"/api/[^\s""]+ ", RegexOptions.IgnoreCase);
-
+                    var apiMatches = Regex.Matches(content, @"/api/[^\s""]+", RegexOptions.IgnoreCase);
                     foreach (Match match in apiMatches)
                     {
                         string apiUrl = $"{new Uri(baseUrl).GetLeftPart(UriPartial.Authority)}{match.Value}";
@@ -873,14 +869,23 @@ namespace IdorAnalizerCSharp
                 "/api/v2/profiles/{id}",
                 "/api/users/{id}",
                 "/api/profiles/{id}",
-                
+
                 // Веб-эндпоинты
                 "/users/{id}",
                 "/profiles/{id}",
                 "/documents/{id}",
                 "/documents/view?id={id}",
                 "/documents?id={id}",
-                "/users/profile?id={id}"
+                "/users/profile?id={id}",
+
+        "/documents/view?id={id}",
+        "/api/v1/documents/{id}",
+        
+        "/api/v1/profiles/{id}",
+        "/api/v2/profiles/{id}",
+        
+        "/messages/drafts?userId={id}",
+        "/schedules/export/result/{id}"
             };
 
             // Тестовые ID
@@ -891,7 +896,7 @@ namespace IdorAnalizerCSharp
                 foreach (var id in testIds)
                 {
                     string urlPath = pattern.Replace("{id}", id);
-                    string fullUrl = $"{baseUri.Scheme}://{baseUri.Host}{urlPath}";
+                    string fullUrl = $"{baseUri.Scheme}://{baseUri.Authority}{urlPath}";
                     candidateUrls.Add(fullUrl);
                 }
             }
@@ -1016,7 +1021,6 @@ namespace IdorAnalizerCSharp
             pdfDoc.Add(new iTextSharp.text.Paragraph($"Scan Time: {DateTime.Now:yyyy-MM-dd HH:mm:ss}", subtitleFont) { Alignment = Element.ALIGN_CENTER });
             pdfDoc.Add(new iTextSharp.text.Paragraph($"Total Vulnerabilities Found: {_results.Count}", subtitleFont) { Alignment = Element.ALIGN_CENTER });
             pdfDoc.Add(new iTextSharp.text.Paragraph(" "));
-
             pdfDoc.Add(new iTextSharp.text.Paragraph("Advanced techniques used:", subtitleFont));
             pdfDoc.Add(new iTextSharp.text.Paragraph("- Parameter pollution testing", normalFont));
             pdfDoc.Add(new iTextSharp.text.Paragraph("- JSON globbing (arrays, booleans, wildcards)", normalFont));
@@ -1026,26 +1030,22 @@ namespace IdorAnalizerCSharp
             pdfDoc.Add(new iTextSharp.text.Paragraph("- Static keyword replacement (current, me)", normalFont));
             pdfDoc.Add(new iTextSharp.text.Paragraph("- UUID and unpredictable ID enumeration", normalFont));
             pdfDoc.Add(new iTextSharp.text.Paragraph(" "));
-
             // Статистика по уровням риска
             var criticalRisk = _results.Count(r => r.RiskLevel == "CRITICAL");
             var highRisk = _results.Count(r => r.RiskLevel == "HIGH");
             var mediumRisk = _results.Count(r => r.RiskLevel == "MEDIUM");
             var lowRisk = _results.Count(r => r.RiskLevel == "LOW");
-
             pdfDoc.Add(new iTextSharp.text.Paragraph($"CRITICAL RISK: {criticalRisk} vulnerabilities", criticalRiskFont));
             pdfDoc.Add(new iTextSharp.text.Paragraph($"HIGH RISK: {highRisk} vulnerabilities", highRiskFont));
             pdfDoc.Add(new iTextSharp.text.Paragraph($"MEDIUM RISK: {mediumRisk} vulnerabilities", mediumRiskFont));
             pdfDoc.Add(new iTextSharp.text.Paragraph($"LOW RISK: {lowRisk} vulnerabilities", lowRiskFont));
             pdfDoc.Add(new iTextSharp.text.Paragraph(" "));
-
             // Детальные результаты
             foreach (var result in _results)
             {
                 var riskFont = result.RiskLevel == "CRITICAL" ? criticalRiskFont :
                               result.RiskLevel == "HIGH" ? highRiskFont :
                               result.RiskLevel == "MEDIUM" ? mediumRiskFont : lowRiskFont;
-
                 pdfDoc.Add(new iTextSharp.text.Paragraph($"Risk Level: {result.RiskLevel} ({result.Confidence:F2} confidence)", riskFont));
                 pdfDoc.Add(new iTextSharp.text.Paragraph($"Test Type: {result.TestType}", normalFont));
                 pdfDoc.Add(new iTextSharp.text.Paragraph($"Vulnerable URL: {result.Url}", normalFont));
@@ -1058,16 +1058,13 @@ namespace IdorAnalizerCSharp
                 pdfDoc.Add(new iTextSharp.text.Paragraph($"Status Codes: {result.OriginalStatusCode} -> {result.ModifiedStatusCode}", normalFont));
                 pdfDoc.Add(new iTextSharp.text.Paragraph($"Content Lengths: {result.OriginalContentLength} -> {result.ModifiedContentLength}", normalFont));
                 pdfDoc.Add(new iTextSharp.text.Paragraph($"Details: {result.Details}", normalFont));
-
                 if (!string.IsNullOrEmpty(result.VulnerableDataSample))
                 {
                     pdfDoc.Add(new iTextSharp.text.Paragraph($"Vulnerable Data Sample: {result.VulnerableDataSample.Substring(0, Math.Min(150, result.VulnerableDataSample.Length))}...", normalFont));
                 }
-
                 pdfDoc.Add(new iTextSharp.text.Paragraph(new string('-', 50)));
                 pdfDoc.Add(new iTextSharp.text.Paragraph(" "));
             }
-
             // Рекомендации
             pdfDoc.Add(new iTextSharp.text.Paragraph("REMEDIATION RECOMMENDATIONS", subtitleFont));
             pdfDoc.Add(new iTextSharp.text.Paragraph(" "));
@@ -1077,12 +1074,8 @@ namespace IdorAnalizerCSharp
             pdfDoc.Add(new iTextSharp.text.Paragraph("4. Implement logging and monitoring for suspicious access patterns", normalFont));
             pdfDoc.Add(new iTextSharp.text.Paragraph("5. Use UUIDs instead of sequential IDs for sensitive resources", normalFont));
             pdfDoc.Add(new iTextSharp.text.Paragraph("6. Implement proper authorization checks on both GET and POST/PUT requests", normalFont));
-
             pdfDoc.Close();
             AnsiConsole.MarkupLine($"[green]PDF report saved to: [bold]{outputPath}[/][/]");
         }
     }
-
-    // Оставшиеся классы (ScanOptions, Program, вспомогательные классы) остались без изменений
-    // ...
 }
