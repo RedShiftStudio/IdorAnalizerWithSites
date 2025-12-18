@@ -33,7 +33,7 @@
         <p>Ваши данные:</p>
         <ul>
             <li><strong>Имя:</strong> API User @(User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value == "1" ? "1" : "2")</li>
-            <li><strong>Email:</strong> apiuser@(User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value)@example.com</li>
+            <li><strong>Email:</strong> apiuser@(User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value)@@example.com</li>
             <li><strong>Пароль:</strong> <code>api@(User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value)pass</code></li>
         </ul>
     }
